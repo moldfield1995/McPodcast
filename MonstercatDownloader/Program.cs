@@ -9,7 +9,9 @@ namespace MonstercatDownloader
     static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        /// Matthew O, GH:moldfield
+        /// Vershon 1.0
+        /// 
         /// </summary>
         [STAThread]
         static void Main()

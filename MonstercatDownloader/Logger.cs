@@ -3,7 +3,11 @@ using System.IO;
 using System.Collections.Generic;
 namespace Loging
 {
-    //make static
+    /// <summary>
+    /// Matthew O, GH:moldfield
+    /// Vershon 0.9
+    /// 
+    /// </summary>
     static class Logger
     {
         public enum LogType

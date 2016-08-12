@@ -21,6 +21,11 @@ namespace MonstercatDownloader
         public int EPNum;
         public override string ToString() { return title; }
     }
+    /// <summary>
+    /// Matthew O, GH:moldfield
+    /// Vershon 0.1
+    /// 
+    /// </summary>
     public partial class MCDownloader : Form
     {
         private List<string> SavedMonstercat;

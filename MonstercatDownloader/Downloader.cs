@@ -3,10 +3,16 @@ using System.IO;
 using System.Net;
 using System.Windows.Forms;
 using System.ComponentModel;
+using System;
 using Loging;
 
 namespace MonstercatDownloader
 {
+    /// <summary>
+    /// Matthew O, GH:moldfield
+    /// Vershon 0.9
+    /// 
+    /// </summary>
     class Downloader 
     {
         private enum DownloadState
@@ -20,13 +26,22 @@ namespace MonstercatDownloader
         private ProgressBar ProgressBar;
         private string DownloadLocation;
         private DownloadState downloadState = DownloadState.Waiting;
-
+        /// <summary>
+        /// Initalizes the refrences for the progress bar and the satus text
+        /// </summary>
+        /// <param name="statusText">The Label to be updated with download state.</param>
+        /// <param name="progressBar">The ProgressBar to be updated with the current progress on file beeing downloaded.</param>
         public Downloader(Label statusText, ProgressBar progressBar)
         {
             StatueText = statusText;
             ProgressBar = progressBar;
             DownloadList = new List<MonstercatPodcasts>();
         }
+
+        /// <summary>
+        /// Gets if the downloader is currently working
+        /// </summary>
+        /// <returns>Returns true if ready to download</returns>
         public bool GetDownloading() {
 #pragma warning disable CS0162 // Unreachable code detected(Keep strucher of switch case)
             switch (downloadState)
@@ -90,6 +105,8 @@ namespace MonstercatDownloader
                 Logger.Log(e.Error.Message, Logger.LogType.Error);
                 HttpStatusCode hCode = GetHttpStatusCode(e.Error);
                 Logger.Log("Http Code was " + hCode.ToString(), Logger.LogType.Error);
+                //TODO: check if the file exsits, if so delete it
+                //check if we have internet accsess if not stop
             }
             DownloadList.RemoveAt(0);
 
@@ -104,7 +121,7 @@ namespace MonstercatDownloader
             }
         }
 
-        HttpStatusCode GetHttpStatusCode(System.Exception err)
+        HttpStatusCode GetHttpStatusCode(Exception err)
         {
             if (err is WebException)
             {
