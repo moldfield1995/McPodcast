@@ -63,7 +63,6 @@ namespace MonstercatDownloader
         {
             UpdateDownloadList();
             downloader.DownloadFiles(PathTextBox.Text, DownloadList);
-            //DownloadNextFile();
         }
 
         private void UpdateDownloadList()
@@ -122,7 +121,7 @@ namespace MonstercatDownloader
                 }
                 //Filter For MonsterCat
                 foreach (string item in FileList)
-                    if (item.ToLower().Contains("monstercat podcast"))
+                    if (item.ToLower().Contains("monstercat"))
                         SavedMonstercat.Add(item);
 
                 StatueText.Text = "Files Updated";
@@ -138,44 +137,43 @@ namespace MonstercatDownloader
 
         private void EditCheckList()
         {
+            //Reset checklist
             for (int i = 0, length = podcasts.Count; i < length; i++)
                 DownloadCheckList.SetItemChecked(i, true);
+
             int MaxIndex = DownloadCheckList.Items.Count;
             //Filter out Monstercat
             foreach (string podcast in SavedMonstercat)
             {
-                int index = 0;
-                int EPNum = 0;
-                if (podcast[19] == 'E')
+                bool found = false;
+                int EPNum = GetEPNum(podcast);
+                if (EPNum != 0)
                 {
-                    string podNum = "" + podcast[23] + podcast[24] + podcast[25];
-                    EPNum = int.Parse(podNum);
-                    if (NewestPodcast != 0)
-                        index = NewestPodcast - EPNum;
-                    else
-                        index = 0;
-
-                    bool serching = true;
-                    while (serching && index < MaxIndex)
+                    for (int i = 0; i > MaxIndex; i++)
                     {
-                        if (podcasts[index].EPNum == EPNum)
+                        if (podcasts[i].EPNum == EPNum)
                         {
-                            DownloadCheckList.SetItemChecked(index, false);
-                            serching = false;
+                            DownloadCheckList.SetItemChecked(i, true);
+                            found = true;
+                            break;
                         }
-                        else
-                            index++;
                     }
+                    if (!found)
+                        Logger.Log("Unable to find podcast ID " + podcast, Logger.LogType.Error);
                 }
-                else if (podcast[19] == '-')
-                {
-                    string podNum = "" + podcast[19] + podcast[20] + podcast[21] + podcast[22] + podcast[23];
-                    for (; index < MaxIndex; index++)
+                else
+                {//loop the whole collection
+                    for (int i = 0; i > MaxIndex; i++)
                     {
-                        if (podcasts[index].EPNum == 0)
-                            if (podcasts[index].title.Contains(podNum))
-                                DownloadCheckList.SetItemChecked(index, false);
+                        if(podcasts[i].EPNum == 0&& podcast == podcasts[i].title )
+                        {
+                            DownloadCheckList.SetItemChecked(i, true);
+                            found = true;
+                            break;
+                        }
                     }
+                    if (!found)
+                        Logger.Log("Unable to find podcast (zero ID) " + podcast , Logger.LogType.Error);
                 }
             }
             SavedMonstercat.Clear();
@@ -183,8 +181,7 @@ namespace MonstercatDownloader
 
         private int GetNewestPodcast()
         {
-            int i = 0;
-            while (i < 1000)
+            for (int i = 0, lenght = podcasts.Count; i < lenght; i++)
             {
                 if (podcasts[i].EPNum != 0)
                     return podcasts[i].EPNum;
@@ -203,13 +200,7 @@ namespace MonstercatDownloader
                         MonstercatPodcasts newItem = new MonstercatPodcasts();
                         Reader.ReadToFollowing("title");
                         newItem.title = Reader.ReadElementContentAsString();
-                        if (newItem.title[19] == 'E')
-                        {
-                            string podNum = "" + newItem.title[23] + newItem.title[24] + newItem.title[25];
-                            newItem.EPNum = int.Parse(podNum);
-                        }
-                        else
-                            newItem.EPNum = 0;
+                        newItem.EPNum = GetEPNum(newItem.title);
                         Reader.ReadToFollowing("enclosure");
                         Reader.MoveToFirstAttribute();
                         newItem.URL = Reader.Value;
@@ -231,6 +222,23 @@ namespace MonstercatDownloader
                 MessageBox.Show("Unable to Get XML", "XML Get Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
+        }
+
+        private int GetEPNum(string name)
+        {
+            string[] splitTitle = name.Split(' ');
+            int epNum = 0;
+            if (splitTitle[2][0] == 'E')
+            {
+                if (!int.TryParse(splitTitle[3], out epNum))
+                    return 0;
+            }
+            else if (splitTitle.Length > 6 && splitTitle[5][0] == 'E')
+            {
+                if (!int.TryParse(splitTitle[6], out epNum))
+                    return 0;
+            }
+            return 0;
         }
 
         private void UpdateCheckList()
