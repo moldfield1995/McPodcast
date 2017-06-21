@@ -37,27 +37,21 @@ namespace MonstercatDownloader
             ProgressBar = progressBar;
             DownloadList = new List<MonstercatPodcasts>();
         }
-
         /// <summary>
         /// Gets if the downloader is currently working
         /// </summary>
         /// <returns>Returns true if ready to download</returns>
         public bool GetDownloading() {
-#pragma warning disable CS0162 // Unreachable code detected(Keep strucher of switch case)
             switch (downloadState)
             {
                 case DownloadState.Waiting:
                     return true;
-                    break;
                 case DownloadState.Downloading:
                 case DownloadState.Canseling:
                     return false;
-                    break;
                 default:
                     // log error
                     return false;
-                    break;
-#pragma warning restore CS0162 // Unreachable code detected
             }
 
         }
@@ -79,7 +73,9 @@ namespace MonstercatDownloader
                 downloadState = DownloadState.Waiting;
             }
         }
-
+        /// <summary>
+        /// Starts the Async donwload loop for all items in download list
+        /// </summary>
         private void DownloadNextFile()
         {
             using (WebClient wc = new WebClient())
@@ -88,7 +84,7 @@ namespace MonstercatDownloader
                 wc.DownloadFileCompleted += DownloadCompleted;
                 string downloadLocation = DownloadLocation + Path.DirectorySeparatorChar + DownloadList[0].title + ".m4a";
                 StatueText.Text = "Downloading " + DownloadList[0].title;
-                wc.DownloadFileAsync(new System.Uri(DownloadList[0].URL), downloadLocation);
+                wc.DownloadFileAsync(new Uri(DownloadList[0].URL), downloadLocation);
             }
         }
 
@@ -105,8 +101,12 @@ namespace MonstercatDownloader
                 Logger.Log(e.Error.Message, Logger.LogType.Error);
                 HttpStatusCode hCode = GetHttpStatusCode(e.Error);
                 Logger.Log("Http Code was " + hCode.ToString(), Logger.LogType.Error);
-                //TODO: check if the file exsits, if so delete it
-                //check if we have internet accsess if not stop
+                string fileLocation = DownloadLocation + Path.DirectorySeparatorChar + DownloadList[0].title + ".m4a";
+                Logger.Log("Was downloading too " + fileLocation,Logger.LogType.Error);
+                if (File.Exists(fileLocation))
+                {
+                    File.Delete(fileLocation);
+                }
             }
             DownloadList.RemoveAt(0);
 

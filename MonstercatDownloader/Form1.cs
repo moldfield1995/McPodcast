@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Loging;
 using System.Xml;
 using System.IO;
-using System.Net;
 using System.Windows.Forms;
 
 namespace MonstercatDownloader
@@ -32,7 +25,6 @@ namespace MonstercatDownloader
         private List<MonstercatPodcasts> podcasts;
         private List<MonstercatPodcasts> DownloadList;
         private Downloader downloader;
-        private bool Downloading = false;
         private int NewestPodcast;
         public MCDownloader()
         {
@@ -73,38 +65,6 @@ namespace MonstercatDownloader
                 if (DownloadCheckList.GetItemChecked(i))
                     DownloadList.Add(podcasts[i]);
             }
-        }
-
-        private void DownloadNextFile()
-        {
-            if (Directory.Exists(PathTextBox.Text) && DownloadList.Count > 0)
-            {
-                using (WebClient wc = new WebClient())
-                {
-                    wc.DownloadProgressChanged += DownloadProgressChanged;
-                    wc.DownloadFileCompleted += DownloadCompleted;
-                    string downloadLocation = PathTextBox.Text + Path.DirectorySeparatorChar + DownloadList[0].title + ".m4a";
-                    StatueText.Text = "Downloading " + DownloadList[0].title;
-
-                    wc.DownloadFileAsync(new System.Uri(DownloadList[0].URL), downloadLocation);
-                    DownloadList.RemoveAt(0);
-                }
-            }
-            else
-            {
-                Downloading = false;
-                StatueText.Text = "Complete";
-            }
-        }
-
-        private void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
-        {
-            DownloadNextFile();
-        }
-
-        private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            ProgressStatus.Value = e.ProgressPercentage;
         }
 
         private bool UpdateFiles()
@@ -188,8 +148,9 @@ namespace MonstercatDownloader
             }
             return 0;
         }
+
         private void GetXML()
-        {
+        {//Todo: ittortate or multi thread this
             podcasts = new List<MonstercatPodcasts>();
             try
             {

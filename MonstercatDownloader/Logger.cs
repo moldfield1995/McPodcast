@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 namespace Loging
 {
     /// <summary>
@@ -19,6 +18,9 @@ namespace Loging
         }
         private static string fileLocation;
         private static string currentLogs;
+        /// <summary>
+        /// Initalizes the singleton logger
+        /// </summary>
         public static void Initilize()
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -31,10 +33,9 @@ namespace Loging
             currentLogs = "";
         }
         /// <summary>
-        /// 
+        /// Addes the messaged to logs to be pushed to file
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="logType"></param>
+        /// <param name="message">The message to log</param>
         public static void Log(string message, LogType logType)
         {
             string temp = "[" + DateTime.Now.TimeOfDay.ToString() + "] " + logType.ToString() + " - " + message + " \r\n";
@@ -42,7 +43,7 @@ namespace Loging
 
         }
         /// <summary>
-        /// 
+        /// Saves the current logs to file
         /// </summary>
         public static void PushLogs()
         {
